@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
+import TodoList from "./pages/TodoList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminLogin from "./pages/AdminLogin";
@@ -29,6 +30,13 @@ export default function App() {
             path="/dashboard"
             element={token ? <Dashboard darkMode={darkMode} /> : <Navigate to="/login" />}
           />
+
+          {/* Todo route for logged-in users */}
+          <Route
+            path="/todo"
+            element={token ? <TodoList darkMode={darkMode} /> : <Navigate to="/login" />}
+          />
+
           <Route path="/login" element={<Login setToken={setToken} />} />
           <Route path="/register" element={<Register setToken={setToken} />} />
 

@@ -229,17 +229,26 @@ export default function Dashboard({ darkMode }) {
   }, [expenses, categoryFilter, dateRange]);
 
   /* ---------- Derived Data for Charts ---------- */
-  const barData = useMemo(() => {
-    const grouped = filteredExpenses.reduce((acc, exp) => {
-      const dateStr = exp.date instanceof Date && !isNaN(exp.date)
-        ? exp.date.toLocaleDateString()
-        : new Date().toLocaleDateString();
-      acc[dateStr] = acc[dateStr] || { date: dateStr, total: 0 };
-      acc[dateStr].total += Number(exp.amount);
-      return acc;
-    }, {});
-    return Object.values(grouped);
-  }, [filteredExpenses]);
+const barData = useMemo(() => {
+  const grouped = filteredExpenses.reduce((acc, exp) => {
+    // Normalize the expense date to a Date object
+    const expDate = exp.date instanceof Date && !isNaN(exp.date) ? exp.date : new Date(exp.date);
+
+    // ISO key (yyyy-mm-dd) for reliable grouping + sorting
+    const isoKey = expDate.toISOString().slice(0, 10);
+
+    // Human-friendly label for display (you can change format if you like)
+    const displayLabel = expDate.toLocaleDateString();
+
+    acc[isoKey] = acc[isoKey] || { iso: isoKey, date: displayLabel, total: 0 };
+    acc[isoKey].total += Number(exp.amount) || 0;
+    return acc;
+  }, {});
+
+  // Sort by iso key (lexicographic works for yyyy-mm-dd) oldest -> newest
+  return Object.values(grouped)
+    .sort((a, b) => a.iso.localeCompare(b.iso));
+}, [filteredExpenses]);
 
   const pieData = useMemo(() => {
     const grouped = filteredExpenses.reduce((acc, exp) => {
@@ -351,12 +360,14 @@ export default function Dashboard({ darkMode }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-4">
             <div className="flex flex-wrap gap-3 items-end">
-              <input
-                type="month"
-                value={monthForm.month}
-                onChange={(e) => setMonthForm({ ...monthForm, month: e.target.value })}
-                className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
+<input
+  type="text"
+  placeholder="yyyy-mm"
+  value={monthForm.month}
+  onChange={(e) => setMonthForm({ ...monthForm, month: e.target.value })}
+  className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+/>
+
               <input
                 type="number"
                 placeholder="Income (per month)"
