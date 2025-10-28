@@ -8,9 +8,12 @@ import Register from "./pages/Register";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  // 🌙 Dark mode is ON by default
+  const [darkMode, setDarkMode] = useState(true);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [adminToken, setAdminToken] = useState(localStorage.getItem("adminToken"));
 
@@ -19,9 +22,10 @@ export default function App() {
       {/* 🌈 Gradient background */}
       <div
         className={`min-h-screen transition-colors text-gray-900 dark:text-gray-100
-          ${darkMode
-            ? "bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-800"
-            : "bg-gradient-to-br from-indigo-100 via-white to-indigo-200"
+          ${
+            darkMode
+              ? "bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-800"
+              : "bg-gradient-to-br from-indigo-100 via-white to-indigo-200"
           }`}
       >
         <Navbar
@@ -32,21 +36,45 @@ export default function App() {
         />
 
         <Routes>
-          {/* User routes */}
+          {/* ✅ Protected user routes */}
           <Route
             path="/dashboard"
-            element={token ? <Dashboard darkMode={darkMode} /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute token={token}>
+                <Dashboard darkMode={darkMode} />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/todo"
-            element={token ? <TodoList darkMode={darkMode} /> : <Navigate to="/login" />}
+            element={
+              <ProtectedRoute token={token}>
+                <TodoList darkMode={darkMode} />
+              </ProtectedRoute>
+            }
           />
 
-          <Route path="/login" element={<Login setToken={setToken} />} />
-          <Route path="/register" element={<Register setToken={setToken} />} />
+          {/* 🚫 Public routes (blocked if logged in) */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute token={token}>
+                <Login setToken={setToken} />
+              </PublicRoute>
+            }
+          />
 
-          {/* Admin routes */}
+          <Route
+            path="/register"
+            element={
+              <PublicRoute token={token}>
+                <Register setToken={setToken} />
+              </PublicRoute>
+            }
+          />
+
+          {/* 👑 Admin routes */}
           <Route
             path="/admin"
             element={
@@ -57,7 +85,7 @@ export default function App() {
           />
           <Route path="/admin/login" element={<AdminLogin setToken={setAdminToken} />} />
 
-          {/* Fallback route */}
+          {/* 🌐 Fallback route */}
           <Route
             path="*"
             element={
