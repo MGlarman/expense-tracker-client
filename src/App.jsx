@@ -16,7 +16,14 @@ export default function App() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
+      {/* 🌈 Gradient background */}
+      <div
+        className={`min-h-screen transition-colors text-gray-900 dark:text-gray-100
+          ${darkMode
+            ? "bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-800"
+            : "bg-gradient-to-br from-indigo-100 via-white to-indigo-200"
+          }`}
+      >
         <Navbar
           darkMode={darkMode}
           setDarkMode={setDarkMode}
@@ -31,7 +38,6 @@ export default function App() {
             element={token ? <Dashboard darkMode={darkMode} /> : <Navigate to="/login" />}
           />
 
-          {/* Todo route for logged-in users */}
           <Route
             path="/todo"
             element={token ? <TodoList darkMode={darkMode} /> : <Navigate to="/login" />}
