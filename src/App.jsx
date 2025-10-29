@@ -28,6 +28,7 @@ export default function App() {
               : "bg-gradient-to-br from-indigo-100 via-white to-indigo-200"
           }`}
       >
+        {/* Fixed or styled Navbar */}
         <Navbar
           darkMode={darkMode}
           setDarkMode={setDarkMode}
@@ -35,70 +36,73 @@ export default function App() {
           setAdminToken={setAdminToken}
         />
 
-        <Routes>
-          {/* ✅ Protected user routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute token={token}>
-                <Dashboard darkMode={darkMode} />
-              </ProtectedRoute>
-            }
-          />
+        {/* Add padding-top to account for Navbar height */}
+        <main className="pt-24 px-4 sm:px-6 lg:px-8">
+          <Routes>
+            {/* ✅ Protected user routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute token={token}>
+                  <Dashboard darkMode={darkMode} />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/todo"
-            element={
-              <ProtectedRoute token={token}>
-                <TodoList darkMode={darkMode} />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/todo"
+              element={
+                <ProtectedRoute token={token}>
+                  <TodoList darkMode={darkMode} />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* 🚫 Public routes (blocked if logged in) */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute token={token}>
-                <Login setToken={setToken} />
-              </PublicRoute>
-            }
-          />
+            {/* 🚫 Public routes (blocked if logged in) */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute token={token}>
+                  <Login setToken={setToken} />
+                </PublicRoute>
+              }
+            />
 
-          <Route
-            path="/register"
-            element={
-              <PublicRoute token={token}>
-                <Register setToken={setToken} />
-              </PublicRoute>
-            }
-          />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute token={token}>
+                  <Register setToken={setToken} />
+                </PublicRoute>
+              }
+            />
 
-          {/* 👑 Admin routes */}
-          <Route
-            path="/admin"
-            element={
-              <AdminProtectedRoute adminToken={adminToken}>
-                <AdminDashboard token={adminToken} />
-              </AdminProtectedRoute>
-            }
-          />
-          <Route path="/admin/login" element={<AdminLogin setToken={setAdminToken} />} />
+            {/* 👑 Admin routes */}
+            <Route
+              path="/admin"
+              element={
+                <AdminProtectedRoute adminToken={adminToken}>
+                  <AdminDashboard token={adminToken} />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route path="/admin/login" element={<AdminLogin setToken={setAdminToken} />} />
 
-          {/* 🌐 Fallback route */}
-          <Route
-            path="*"
-            element={
-              token ? (
-                <Navigate to="/dashboard" />
-              ) : adminToken ? (
-                <Navigate to="/admin" />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-        </Routes>
+            {/* 🌐 Fallback route */}
+            <Route
+              path="*"
+              element={
+                token ? (
+                  <Navigate to="/dashboard" />
+                ) : adminToken ? (
+                  <Navigate to="/admin" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+          </Routes>
+        </main>
       </div>
     </div>
   );

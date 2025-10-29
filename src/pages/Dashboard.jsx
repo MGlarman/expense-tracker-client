@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer
 } from "recharts";
 import {
   Chart as ChartJS,
@@ -360,13 +360,13 @@ const barData = useMemo(() => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-4">
             <div className="flex flex-wrap gap-3 items-end">
-<input
-  type="text"
-  placeholder="yyyy-mm"
-  value={monthForm.month}
-  onChange={(e) => setMonthForm({ ...monthForm, month: e.target.value })}
-  className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-/>
+              <input
+                type="text"
+                placeholder="yyyy-mm"
+                value={monthForm.month}
+                onChange={(e) => setMonthForm({ ...monthForm, month: e.target.value })}
+                className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
 
               <input
                 type="number"
@@ -521,55 +521,101 @@ const barData = useMemo(() => {
         </div>
       </section>
 
-      {/* Charts */}
-      <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 gap-6">
-        <div className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full`} style={{ minHeight: 300 }}>
-          <h4 className="text-lg font-semibold mb-2">Expenses Over Time</h4>
-          <div className="w-full h-80">
-            <Line data={expensesChartData} options={expensesChartOptions} />
-          </div>
-        </div>
+      {/* CHARTS */}
+<section className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 gap-6">
+  {/* Line chart */}
+  <div
+    className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
+    style={{ minHeight: 300 }}
+  >
+    <h4 className="text-lg font-semibold mb-2">Expenses Over Time</h4>
+    <div className="w-full h-80">
+      <Line
+        data={expensesChartData}
+        options={{
+          ...expensesChartOptions,
+          responsive: true,
+          maintainAspectRatio: false,
+        }}
+      />
+    </div>
+  </div>
 
-        <div className="space-y-6">
-          <div className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full`} style={{ minHeight: 300 }}>
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
-              <h4 className="text-lg font-semibold">Projected Daily Savings vs Expenses</h4>
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="p-3 border rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+  {/* Bar and Pie charts */}
+  <div className="space-y-6">
+    {/* Bar chart */}
+    <div
+      className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
+      style={{ minHeight: 300 }}
+    >
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
+        <h4 className="text-lg font-semibold">Projected Daily Savings vs Expenses</h4>
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="p-3 border rounded-lg text-base min-w-0 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          {monthlyData
+            .slice()
+            .sort((a, b) => b.year * 12 + b.month - (a.year * 12 + a.month))
+            .map((m) => (
+              <option
+                key={`${m.year}-${m.month}`}
+                value={`${m.year}-${String(m.month + 1).padStart(2, "0")}`}
               >
-                {monthlyData.slice().sort((a,b)=>b.year*12+b.month - (a.year*12+a.month)).map(m => (
-                  <option key={`${m.year}-${m.month}`} value={`${m.year}-${String(m.month+1).padStart(2,'0')}`}>
-                    {new Date(m.year, m.month).toLocaleString('default', { month: 'long', year: 'numeric' })}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="overflow-x-auto">
-              <BarChart width={500} height={280} data={projectedBarData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#444" : "#eee"} />
-                <XAxis dataKey="date" stroke={darkMode ? "#fff" : "#000"} />
-                <YAxis stroke={darkMode ? "#fff" : "#000"} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="expenses" name="Expenses" fill="#f87171" />
-                <Bar dataKey="savings" name="Projected Savings (daily)" fill="#22c55e" />
-              </BarChart>
-            </div>
-          </div>
+                {new Date(m.year, m.month).toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </option>
+            ))}
+        </select>
+      </div>
+      <div className="w-full h-80">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={projectedBarData}>
+            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#444" : "#eee"} />
+            <XAxis dataKey="date" stroke={darkMode ? "#fff" : "#000"} />
+            <YAxis stroke={darkMode ? "#fff" : "#000"} />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="expenses" name="Expenses" fill="#f87171" />
+            <Bar dataKey="savings" name="Projected Savings (daily)" fill="#22c55e" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
 
-          <div className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full`} style={{ minHeight: 300 }}>
-            <h4 className="text-lg font-semibold mb-2">Expenses by Category</h4>
-            <PieChart width={400} height={220}>
-              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                {pieData.map((entry, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </div>
-        </div>
-      </section>
+    {/* Pie chart */}
+    <div
+      className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
+      style={{ minHeight: 300 }}
+    >
+      <h4 className="text-lg font-semibold mb-2">Expenses by Category</h4>
+      <div className="w-full h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label
+            >
+              {pieData.map((entry, idx) => (
+                <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* Expense list */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6">
