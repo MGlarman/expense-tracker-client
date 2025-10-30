@@ -196,8 +196,10 @@ export default function TodoList({ darkMode }) {
     const grouped = todos.reduce((acc, todo) => {
       const totalTime =
         Number(todo.estimatedTime) +
-        (todo.subtasks?.reduce((sum, s) => sum + Number(s.estimatedTime || 0), 0) ||
-          0);
+        (todo.subtasks?.reduce(
+          (sum, s) => sum + Number(s.estimatedTime || 0),
+          0
+        ) || 0);
       acc[todo.category] = acc[todo.category] || {
         name: todo.category,
         value: 0,
@@ -207,6 +209,12 @@ export default function TodoList({ darkMode }) {
     }, {});
     return Object.values(grouped);
   }, [todos]);
+
+  // ---------- Shared Input Styles ----------
+  const inputBase = `p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400`;
+  const inputTheme = darkMode
+    ? "bg-gray-800 text-white border-gray-700 placeholder-gray-400"
+    : "bg-white text-black border-gray-300";
 
   // ---------- Render ----------
   return (
@@ -227,18 +235,14 @@ export default function TodoList({ darkMode }) {
         <input
           placeholder="Task Title..."
           value={newTodo.title}
-          onChange={(e) =>
-            setNewTodo({ ...newTodo, title: e.target.value })
-          }
-          className="p-3 border rounded-lg flex-1 min-w-[160px] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
+          className={`${inputBase} flex-1 min-w-[160px] ${inputTheme}`}
         />
         <input
           type="date"
           value={newTodo.dueDate}
-          onChange={(e) =>
-            setNewTodo({ ...newTodo, dueDate: e.target.value })
-          }
-          className="p-3 border rounded-lg w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
+          className={`${inputBase} w-full sm:w-40 ${inputTheme}`}
         />
         <input
           type="number"
@@ -248,14 +252,12 @@ export default function TodoList({ darkMode }) {
           onChange={(e) =>
             setNewTodo({ ...newTodo, estimatedTime: e.target.value })
           }
-          className="p-3 border rounded-lg w-full sm:w-28 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className={`${inputBase} w-full sm:w-28 ${inputTheme}`}
         />
         <select
           value={newTodo.category}
-          onChange={(e) =>
-            setNewTodo({ ...newTodo, category: e.target.value })
-          }
-          className="p-3 border rounded-lg w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          onChange={(e) => setNewTodo({ ...newTodo, category: e.target.value })}
+          className={`${inputBase} w-full sm:w-32 ${inputTheme}`}
         >
           {CATEGORY_OPTIONS.map((c) => (
             <option key={c}>{c}</option>
@@ -263,10 +265,8 @@ export default function TodoList({ darkMode }) {
         </select>
         <select
           value={newTodo.priority}
-          onChange={(e) =>
-            setNewTodo({ ...newTodo, priority: e.target.value })
-          }
-          className="p-3 border rounded-lg w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          onChange={(e) => setNewTodo({ ...newTodo, priority: e.target.value })}
+          className={`${inputBase} w-full sm:w-32 ${inputTheme}`}
         >
           {PRIORITY_OPTIONS.map((p) => (
             <option key={p}>{p}</option>
@@ -276,36 +276,6 @@ export default function TodoList({ darkMode }) {
           Add
         </button>
       </form>
-
-      {/* Pie Chart */}
-      <div className="p-4 rounded-xl shadow-md bg-gray-100 dark:bg-gray-800">
-        <h3 className="text-lg font-semibold mb-2 text-center sm:text-left">
-          Estimated Time by Category
-        </h3>
-        <div className="w-full h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius="70%"
-                label
-              >
-                {pieData.map((entry, idx) => (
-                  <Cell
-                    key={idx}
-                    fill={COLORS[idx % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
       {/* Todo List */}
       <ul className="space-y-4 overflow-hidden">
@@ -318,9 +288,7 @@ export default function TodoList({ darkMode }) {
               <input
                 type="checkbox"
                 checked={todo.completed}
-                onChange={() =>
-                  handleToggle(todo._id, todo.completed)
-                }
+                onChange={() => handleToggle(todo._id, todo.completed)}
               />
               <span
                 className={`font-medium ${
@@ -408,7 +376,7 @@ export default function TodoList({ darkMode }) {
                     [todo._id]: e.target.value,
                   }))
                 }
-                className="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
+                className={`flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm ${inputTheme}`}
               />
               <button
                 onClick={() => addSubtask(todo._id)}
@@ -420,6 +388,33 @@ export default function TodoList({ darkMode }) {
           </li>
         ))}
       </ul>
+
+      {/* Pie Chart (Moved Below Todo List) */}
+      <div className="p-4 rounded-xl shadow-md bg-gray-100 dark:bg-gray-800 mt-6">
+        <h3 className="text-lg font-semibold mb-2 text-center sm:text-left">
+          Estimated Time by Category
+        </h3>
+        <div className="w-full h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius="70%"
+                label
+              >
+                {pieData.map((entry, idx) => (
+                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
   );
 }

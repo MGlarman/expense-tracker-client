@@ -348,178 +348,254 @@ const barData = useMemo(() => {
 
   /* ---------- Render ---------- */
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-8">
-      {/* OVERVIEW SECTION */}
-      {/* Overview + monthly form */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6 space-y-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-0">
-          <h2 className="text-xl font-semibold">Overview</h2>
-          <div className="text-sm text-gray-500 mt-1 md:mt-0">Month: <strong>{currentMonth}</strong></div>
+  <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-8">
+    {/* OVERVIEW SECTION */}
+    <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6 space-y-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-0">
+        <h2 className="text-xl font-semibold">Overview</h2>
+        <div className="text-sm text-gray-500 mt-1 md:mt-0">
+          Month: <strong>{currentMonth}</strong>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-4">
-            <div className="flex flex-wrap gap-3 items-end">
-              <input
-                type="text"
-                placeholder="yyyy-mm"
-                value={monthForm.month}
-                onChange={(e) => setMonthForm({ ...monthForm, month: e.target.value })}
-                className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-
-              <input
-                type="number"
-                placeholder="Income (per month)"
-                value={monthForm.income}
-                onChange={(e) => setMonthForm({ ...monthForm, income: e.target.value })}
-                className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              <input
-                type="number"
-                placeholder="Savings Goal (per month)"
-                value={monthForm.savingsGoal}
-                onChange={(e) => setMonthForm({ ...monthForm, savingsGoal: e.target.value })}
-                className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-              <button
-                onClick={handleSaveMonthlyData}
-                className="bg-indigo-600 text-white px-5 py-3 rounded-lg font-medium text-base hover:bg-indigo-700 transition-colors"
-              >
-                Save Month
-              </button>
-              <div className="text-sm text-gray-500 mt-1 sm:mt-0">Saved months: {monthlyData.length}</div>
-            </div>
-
-{/* Monthly table */}
-{monthlyData.length > 0 && (
-  <div className="mt-3 overflow-x-auto">
-    <table className="w-full text-sm">
-      <thead>
-        <tr className="text-left text-gray-500">
-          <th className="py-3">Month</th>
-          <th className="py-3">Income</th>
-          <th className="py-3">Savings Goal</th>
-          <th className="py-3">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {monthlyData
-          .slice()
-          .sort((a, b) => b.year * 12 + b.month - (a.year * 12 + a.month))
-          .map((m) => (
-            <tr key={m._id} className="border-t">
-              <td className="py-4">{m.year && m.month >= 0
-                ? new Date(m.year, m.month).toLocaleString('default', { month: 'long', year: 'numeric' })
-                : "Invalid Date"}</td>
-              <td className="py-4">${m.income}</td>
-              <td className="py-4">${m.savingsGoal}</td>
-              <td className="py-4 flex flex-wrap gap-2">
-                <button
-                  onClick={() => setMonthForm({ month: `${m.year}-${String(m.month + 1).padStart(2, '0')}`, income: m.income, savingsGoal: m.savingsGoal })}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition-colors"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteMonth(m._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
-  </div>
-)}
-          </div>
-
-          {/* Summary cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
-            <div className="p-5 rounded-xl bg-indigo-50 dark:bg-gray-700 flex flex-col items-start">
-              <div className="text-xs text-gray-600">Monthly Income</div>
-              <div className="text-lg font-semibold text-indigo-600">${selectedMonthData.income}</div>
-            </div>
-            <div className="p-5 rounded-xl bg-indigo-50 dark:bg-gray-700 flex flex-col items-start">
-              <div className="text-xs text-gray-600">Monthly Expenses</div>
-              <div className="text-lg font-semibold text-indigo-600">${monthlyExpenses.reduce((sum,e)=>sum+Number(e.amount),0)}</div>
-            </div>
-            <div className="p-5 rounded-xl bg-green-50 dark:bg-gray-700 flex flex-col items-start">
-              <div className="text-xs text-gray-600">Projected Savings</div>
-              <div className="text-lg font-semibold text-green-600">${(selectedMonthData.income - monthlyExpenses.reduce((sum,e)=>sum+Number(e.amount),0)).toFixed(0)}</div>
-            </div>
-            <div className="p-5 rounded-xl bg-yellow-50 dark:bg-gray-700 flex flex-col items-start">
-              <div className="text-xs text-gray-600">Savings Goal</div>
-              <div className="text-lg font-semibold text-yellow-500">${selectedMonthData.savingsGoal}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Add expense & filters */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6">
-          <h3 className="text-lg font-semibold mb-3">Add Expense</h3>
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row flex-wrap gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex flex-wrap gap-3 items-end">
             <input
-              placeholder="Title"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              type="text"
+              placeholder="yyyy-mm"
+              value={monthForm.month}
+              onChange={(e) =>
+                setMonthForm({ ...monthForm, month: e.target.value })
+              }
+              className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:placeholder-gray-400"
             />
+
             <input
               type="number"
-              placeholder="Amount"
-              value={form.amount}
-              onChange={(e) => setForm({ ...form, amount: e.target.value })}
-              className="p-3 border rounded-lg w-full sm:w-36 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="Income (per month)"
+              value={monthForm.income}
+              onChange={(e) =>
+                setMonthForm({ ...monthForm, income: e.target.value })
+              }
+              className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:placeholder-gray-400"
             />
+
             <input
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="p-3 border rounded-lg w-full sm:w-44 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              type="number"
+              placeholder="Savings Goal (per month)"
+              value={monthForm.savingsGoal}
+              onChange={(e) =>
+                setMonthForm({ ...monthForm, savingsGoal: e.target.value })
+              }
+              className="p-3 text-base border rounded w-full sm:w-44 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:placeholder-gray-400"
             />
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="p-3 border rounded-lg w-full sm:w-44 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-              {CATEGORY_OPTIONS.slice(1).map(c => <option key={c}>{c}</option>)}
-            </select>
+
             <button
-              className="bg-blue-500 text-white px-5 py-3 rounded-lg font-medium text-base w-full sm:w-auto hover:bg-blue-600 transition-colors"
+              onClick={handleSaveMonthlyData}
+              className="bg-indigo-600 text-white px-5 py-3 rounded-lg font-medium text-base hover:bg-indigo-700 transition-colors"
             >
-              Add
+              Save Month
             </button>
-          </form>
+
+            <div className="text-sm text-gray-500 mt-1 sm:mt-0">
+              Saved months: {monthlyData.length}
+            </div>
+          </div>
+
+          {/* Monthly Table */}
+          {monthlyData.length > 0 && (
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500">
+                    <th className="py-3">Month</th>
+                    <th className="py-3">Income</th>
+                    <th className="py-3">Savings Goal</th>
+                    <th className="py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthlyData
+                    .slice()
+                    .sort(
+                      (a, b) =>
+                        b.year * 12 +
+                        b.month -
+                        (a.year * 12 + a.month)
+                    )
+                    .map((m) => (
+                      <tr key={m._id} className="border-t">
+                        <td className="py-4">
+                          {m.year && m.month >= 0
+                            ? new Date(m.year, m.month).toLocaleString(
+                                "default",
+                                { month: "long", year: "numeric" }
+                              )
+                            : "Invalid Date"}
+                        </td>
+                        <td className="py-4">${m.income}</td>
+                        <td className="py-4">${m.savingsGoal}</td>
+                        <td className="py-4 flex flex-wrap gap-2">
+                          <button
+                            onClick={() =>
+                              setMonthForm({
+                                month: `${m.year}-${String(
+                                  m.month + 1
+                                ).padStart(2, "0")}`,
+                                income: m.income,
+                                savingsGoal: m.savingsGoal,
+                              })
+                            }
+                            className="bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMonth(m._id)}
+                            className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6">
-          <h3 className="text-lg font-semibold mb-3">Filters</h3>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-              {CATEGORY_OPTIONS.map(c => <option key={c}>{c}</option>)}
-            </select>
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value)}
-              className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="All">All time</option>
-            </select>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+          <div className="p-5 rounded-xl bg-indigo-50 dark:bg-gray-700 flex flex-col items-start">
+            <div className="text-xs text-gray-600 dark:text-gray-300">
+              Monthly Income
+            </div>
+            <div className="text-lg font-semibold text-indigo-600">
+              ${selectedMonthData.income}
+            </div>
+          </div>
+          <div className="p-5 rounded-xl bg-indigo-50 dark:bg-gray-700 flex flex-col items-start">
+            <div className="text-xs text-gray-600 dark:text-gray-300">
+              Monthly Expenses
+            </div>
+            <div className="text-lg font-semibold text-indigo-600">
+              $
+              {monthlyExpenses.reduce(
+                (sum, e) => sum + Number(e.amount),
+                0
+              )}
+            </div>
+          </div>
+          <div className="p-5 rounded-xl bg-green-50 dark:bg-gray-700 flex flex-col items-start">
+            <div className="text-xs text-gray-600 dark:text-gray-300">
+              Projected Savings
+            </div>
+            <div className="text-lg font-semibold text-green-600">
+              $
+              {(
+                selectedMonthData.income -
+                monthlyExpenses.reduce(
+                  (sum, e) => sum + Number(e.amount),
+                  0
+                )
+              ).toFixed(0)}
+            </div>
+          </div>
+          <div className="p-5 rounded-xl bg-yellow-50 dark:bg-gray-700 flex flex-col items-start">
+            <div className="text-xs text-gray-600 dark:text-gray-300">
+              Savings Goal
+            </div>
+            <div className="text-lg font-semibold text-yellow-500">
+              ${selectedMonthData.savingsGoal}
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+
+    {/* ADD EXPENSE & FILTERS */}
+    <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Add Expense */}
+      <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6">
+        <h3 className="text-lg font-semibold mb-3">Add Expense</h3>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row flex-wrap gap-3"
+        >
+          <input
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+            className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:placeholder-gray-400"
+          />
+
+          <input
+            type="number"
+            placeholder="Amount"
+            value={form.amount}
+            onChange={(e) =>
+              setForm({ ...form, amount: e.target.value })
+            }
+            className="p-3 border rounded-lg w-full sm:w-36 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:placeholder-gray-400"
+          />
+
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) =>
+              setForm({ ...form, date: e.target.value })
+            }
+            className="p-3 border rounded-lg w-full sm:w-44 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+          />
+
+          <select
+            value={form.category}
+            onChange={(e) =>
+              setForm({ ...form, category: e.target.value })
+            }
+            className="p-3 border rounded-lg w-full sm:w-44 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+          >
+            {CATEGORY_OPTIONS.slice(1).map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+
+          <button className="bg-blue-500 text-white px-5 py-3 rounded-lg font-medium text-base w-full sm:w-auto hover:bg-blue-600 transition-colors">
+            Add
+          </button>
+        </form>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-4 md:p-6">
+        <h3 className="text-lg font-semibold mb-3">Filters</h3>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+          >
+            {CATEGORY_OPTIONS.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+          <select
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            className="p-3 border rounded-lg flex-1 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+          >
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="All">All time</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
       {/* CHARTS */}
 <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-1 gap-6">
@@ -542,78 +618,89 @@ const barData = useMemo(() => {
   </div>
 
   {/* Bar and Pie charts */}
-  <div className="space-y-6">
-    {/* Bar chart */}
-    <div
-      className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
-      style={{ minHeight: 300 }}
-    >
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
-        <h4 className="text-lg font-semibold">Projected Daily Savings vs Expenses</h4>
-        <select
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-          className="p-3 border rounded-lg text-base min-w-0 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-        >
-          {monthlyData
-            .slice()
-            .sort((a, b) => b.year * 12 + b.month - (a.year * 12 + a.month))
-            .map((m) => (
-              <option
-                key={`${m.year}-${m.month}`}
-                value={`${m.year}-${String(m.month + 1).padStart(2, "0")}`}
-              >
-                {new Date(m.year, m.month).toLocaleString("default", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </option>
-            ))}
-        </select>
-      </div>
-      <div className="w-full h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={projectedBarData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#444" : "#eee"} />
-            <XAxis dataKey="date" stroke={darkMode ? "#fff" : "#000"} />
-            <YAxis stroke={darkMode ? "#fff" : "#000"} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="expenses" name="Expenses" fill="#f87171" />
-            <Bar dataKey="savings" name="Projected Savings (daily)" fill="#22c55e" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-
-    {/* Pie chart */}
-    <div
-      className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
-      style={{ minHeight: 300 }}
-    >
-      <h4 className="text-lg font-semibold mb-2">Expenses by Category</h4>
-      <div className="w-full h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={pieData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label
+<div className="space-y-6">
+  {/* Bar chart */}
+  <div
+    className={`p-5 rounded-2xl shadow-md ${
+      darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+    } w-full min-w-0`}
+    style={{ minHeight: 300 }}
+  >
+    <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
+      <h4 className="text-lg font-semibold">Projected Daily Savings vs Expenses</h4>
+      <select
+        value={selectedMonth}
+        onChange={(e) => setSelectedMonth(e.target.value)}
+        className={`p-3 border rounded-lg text-base min-w-0 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+          darkMode
+            ? "bg-gray-800 text-white border-gray-700 placeholder-gray-400"
+            : "bg-white text-black border-gray-300"
+        }`}
+      >
+        {monthlyData
+          .slice()
+          .sort((a, b) => b.year * 12 + b.month - (a.year * 12 + a.month))
+          .map((m) => (
+            <option
+              key={`${m.year}-${m.month}`}
+              value={`${m.year}-${String(m.month + 1).padStart(2, "0")}`}
+              className={darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}
             >
-              {pieData.map((entry, idx) => (
-                <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+              {new Date(m.year, m.month).toLocaleString("default", {
+                month: "long",
+                year: "numeric",
+              })}
+            </option>
+          ))}
+      </select>
+    </div>
+    <div className="w-full h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={projectedBarData}>
+          <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#444" : "#eee"} />
+          <XAxis dataKey="date" stroke={darkMode ? "#fff" : "#000"} />
+          <YAxis stroke={darkMode ? "#fff" : "#000"} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: darkMode ? "#1f2937" : "#fff",
+              color: darkMode ? "#fff" : "#000",
+            }}
+          />
+          <Legend wrapperStyle={{ color: darkMode ? "#fff" : "#000" }} />
+          <Bar dataKey="expenses" name="Expenses" fill="#f87171" />
+          <Bar dataKey="savings" name="Projected Savings (daily)" fill="#22c55e" />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   </div>
+
+<div
+    className={`p-5 rounded-2xl shadow-md ${darkMode ? "bg-gray-800" : "bg-white"} w-full min-w-0`}
+    style={{ minHeight: 300 }}
+  >
+    <h4 className="text-lg font-semibold mb-2">Expenses by Category</h4>
+    <div className="w-full h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            label
+          >
+            {pieData.map((entry, idx) => (
+              <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+</div>
 </section>
 
 
