@@ -1,6 +1,6 @@
 // components/TodoList.js
 import { useState, useEffect, useMemo } from "react";
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const BASE_URL = "https://expense-tracker-api-80j5.onrender.com/api";
 const COLORS = ["#4f46e5", "#22c55e", "#f87171", "#facc15", "#8b5cf6"];
@@ -15,7 +15,7 @@ export default function TodoList({ darkMode }) {
     dueDate: "",
     estimatedTime: 0,
     category: "General",
-    priority: "medium"
+    priority: "medium",
   });
   const [editingId, setEditingId] = useState(null);
   const [editTodo, setEditTodo] = useState({});
@@ -39,32 +39,47 @@ export default function TodoList({ darkMode }) {
   };
 
   // ---------- Todo Handlers ----------
-
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!newTodo.title) return;
     try {
       const res = await fetch(`${BASE_URL}/todo`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(newTodo),
       });
       const data = await res.json();
-      setTodos(prev => [data, ...prev]);
-      setNewTodo({ title: "", dueDate: "", estimatedTime: 0, category: "General", priority: "medium" });
-    } catch (err) { console.error(err); }
+      setTodos((prev) => [data, ...prev]);
+      setNewTodo({
+        title: "",
+        dueDate: "",
+        estimatedTime: 0,
+        category: "General",
+        priority: "medium",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleToggle = async (id, completed) => {
     try {
       const res = await fetch(`${BASE_URL}/todo/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ completed: !completed }),
       });
       const updated = await res.json();
-      setTodos(prev => prev.map(t => t._id === id ? updated : t));
-    } catch (err) { console.error(err); }
+      setTodos((prev) => prev.map((t) => (t._id === id ? updated : t)));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -73,25 +88,31 @@ export default function TodoList({ darkMode }) {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTodos(prev => prev.filter(t => t._id !== id));
-    } catch (err) { console.error(err); }
+      setTodos((prev) => prev.filter((t) => t._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSaveEdit = async (id) => {
     try {
       const res = await fetch(`${BASE_URL}/todo/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(editTodo),
       });
       const updated = await res.json();
-      setTodos(prev => prev.map(t => t._id === id ? updated : t));
+      setTodos((prev) => prev.map((t) => (t._id === id ? updated : t)));
       setEditingId(null);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // ---------- Subtask Handlers (Safe Version) ----------
-
+  // ---------- Subtask Handlers ----------
   const addSubtask = async (todoId) => {
     const title = subtaskInputs[todoId];
     if (!title) return;
@@ -99,18 +120,23 @@ export default function TodoList({ darkMode }) {
     try {
       const res = await fetch(`${BASE_URL}/todo/${todoId}/subtasks`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ title }),
       });
-      const newSubtask = await res.json(); // backend returns created subtask
+      const newSubtask = await res.json();
 
-      setTodos(prev => prev.map(t =>
-        t._id === todoId
-          ? { ...t, subtasks: [...(t.subtasks || []), newSubtask] }
-          : t
-      ));
+      setTodos((prev) =>
+        prev.map((t) =>
+          t._id === todoId
+            ? { ...t, subtasks: [...(t.subtasks || []), newSubtask] }
+            : t
+        )
+      );
 
-      setSubtaskInputs(prev => ({ ...prev, [todoId]: "" }));
+      setSubtaskInputs((prev) => ({ ...prev, [todoId]: "" }));
     } catch (err) {
       console.error(err);
     }
@@ -120,20 +146,27 @@ export default function TodoList({ darkMode }) {
     try {
       await fetch(`${BASE_URL}/todo/${todoId}/subtasks/${subtask._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ completed: !subtask.completed }),
       });
 
-      setTodos(prev => prev.map(t =>
-        t._id === todoId
-          ? {
-              ...t,
-              subtasks: t.subtasks.map(s =>
-                s._id === subtask._id ? { ...s, completed: !s.completed } : s
-              )
-            }
-          : t
-      ));
+      setTodos((prev) =>
+        prev.map((t) =>
+          t._id === todoId
+            ? {
+                ...t,
+                subtasks: t.subtasks.map((s) =>
+                  s._id === subtask._id
+                    ? { ...s, completed: !s.completed }
+                    : s
+                ),
+              }
+            : t
+        )
+      );
     } catch (err) {
       console.error(err);
     }
@@ -146,22 +179,29 @@ export default function TodoList({ darkMode }) {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setTodos(prev => prev.map(t =>
-        t._id === todoId
-          ? { ...t, subtasks: t.subtasks.filter(s => s._id !== subId) }
-          : t
-      ));
+      setTodos((prev) =>
+        prev.map((t) =>
+          t._id === todoId
+            ? { ...t, subtasks: t.subtasks.filter((s) => s._id !== subId) }
+            : t
+        )
+      );
     } catch (err) {
       console.error(err);
     }
   };
 
   // ---------- Pie Chart Data ----------
-
   const pieData = useMemo(() => {
     const grouped = todos.reduce((acc, todo) => {
-      const totalTime = Number(todo.estimatedTime) + todo.subtasks?.reduce((sum, s) => sum + Number(s.estimatedTime), 0);
-      acc[todo.category] = acc[todo.category] || { name: todo.category, value: 0 };
+      const totalTime =
+        Number(todo.estimatedTime) +
+        (todo.subtasks?.reduce((sum, s) => sum + Number(s.estimatedTime || 0), 0) ||
+          0);
+      acc[todo.category] = acc[todo.category] || {
+        name: todo.category,
+        value: 0,
+      };
       acc[todo.category].value += totalTime;
       return acc;
     }, {});
@@ -169,67 +209,188 @@ export default function TodoList({ darkMode }) {
   }, [todos]);
 
   // ---------- Render ----------
-
   return (
-    <div className={`p-4 md:p-6 max-w-3xl mx-auto space-y-6 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} rounded-xl shadow`}>
-      <h2 className="text-xl font-semibold mb-4">To-Do List</h2>
+    <div
+      className={`p-4 md:p-6 max-w-4xl mx-auto space-y-6 rounded-xl shadow overflow-hidden ${
+        darkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
+    >
+      <h2 className="text-xl font-semibold mb-4 text-center sm:text-left">
+        To-Do List
+      </h2>
 
       {/* Add Todo Form */}
-      <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-2 mb-4 flex-wrap">
-        <input placeholder="Task Title..." value={newTodo.title} onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })} className="p-3 border rounded-lg flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        <input type="date" value={newTodo.dueDate} onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })} className="p-3 border rounded-lg w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        <input type="number" min="0" placeholder="Estimated hours" value={newTodo.estimatedTime} onChange={(e) => setNewTodo({ ...newTodo, estimatedTime: e.target.value })} className="p-3 border rounded-lg w-full sm:w-36 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        <select value={newTodo.category} onChange={(e) => setNewTodo({ ...newTodo, category: e.target.value })} className="p-3 border rounded-lg w-full sm:w-36 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          {CATEGORY_OPTIONS.map(c => <option key={c}>{c}</option>)}
+      <form
+        onSubmit={handleAdd}
+        className="flex flex-col sm:flex-row flex-wrap gap-2 mb-4 w-full"
+      >
+        <input
+          placeholder="Task Title..."
+          value={newTodo.title}
+          onChange={(e) =>
+            setNewTodo({ ...newTodo, title: e.target.value })
+          }
+          className="p-3 border rounded-lg flex-1 min-w-[160px] focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+        <input
+          type="date"
+          value={newTodo.dueDate}
+          onChange={(e) =>
+            setNewTodo({ ...newTodo, dueDate: e.target.value })
+          }
+          className="p-3 border rounded-lg w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+        <input
+          type="number"
+          min="0"
+          placeholder="Hours"
+          value={newTodo.estimatedTime}
+          onChange={(e) =>
+            setNewTodo({ ...newTodo, estimatedTime: e.target.value })
+          }
+          className="p-3 border rounded-lg w-full sm:w-28 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        />
+        <select
+          value={newTodo.category}
+          onChange={(e) =>
+            setNewTodo({ ...newTodo, category: e.target.value })
+          }
+          className="p-3 border rounded-lg w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          {CATEGORY_OPTIONS.map((c) => (
+            <option key={c}>{c}</option>
+          ))}
         </select>
-        <select value={newTodo.priority} onChange={(e) => setNewTodo({ ...newTodo, priority: e.target.value })} className="p-3 border rounded-lg w-full sm:w-36 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          {PRIORITY_OPTIONS.map(p => <option key={p}>{p}</option>)}
+        <select
+          value={newTodo.priority}
+          onChange={(e) =>
+            setNewTodo({ ...newTodo, priority: e.target.value })
+          }
+          className="p-3 border rounded-lg w-full sm:w-32 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          {PRIORITY_OPTIONS.map((p) => (
+            <option key={p}>{p}</option>
+          ))}
         </select>
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Add</button>
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+          Add
+        </button>
       </form>
 
       {/* Pie Chart */}
       <div className="p-4 rounded-xl shadow-md bg-gray-100 dark:bg-gray-800">
-        <h3 className="text-lg font-semibold mb-2">Estimated Time by Category</h3>
-        <PieChart width={400} height={250}>
-          <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-            {pieData.map((entry, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
-          </Pie>
-          <Tooltip />
-        </PieChart>
+        <h3 className="text-lg font-semibold mb-2 text-center sm:text-left">
+          Estimated Time by Category
+        </h3>
+        <div className="w-full h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius="70%"
+                label
+              >
+                {pieData.map((entry, idx) => (
+                  <Cell
+                    key={idx}
+                    fill={COLORS[idx % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Todo List */}
-      <ul className="space-y-4">
-        {todos.map(todo => (
-          <li key={todo._id} className="flex flex-col p-3 border rounded-lg gap-2">
-
-            {/* Todo Info */}
+      <ul className="space-y-4 overflow-hidden">
+        {todos.map((todo) => (
+          <li
+            key={todo._id}
+            className="flex flex-col p-3 border rounded-lg gap-2 overflow-hidden"
+          >
             <div className="flex flex-wrap items-center gap-2">
-              <input type="checkbox" checked={todo.completed} onChange={() => handleToggle(todo._id, todo.completed)} />
-              <span className={`${todo.completed ? "line-through text-gray-400" : ""} font-medium`}>{todo.title}</span>
-              {todo.dueDate && <span className="text-sm text-gray-500">Due: {new Date(todo.dueDate).toLocaleDateString()}</span>}
-              <span className="text-sm text-gray-500">⏱ {todo.estimatedTime}h</span>
-              <span className="text-sm text-gray-500">📂 {todo.category}</span>
-              <span className="text-sm font-semibold text-yellow-600">{todo.priority}</span>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() =>
+                  handleToggle(todo._id, todo.completed)
+                }
+              />
+              <span
+                className={`font-medium ${
+                  todo.completed ? "line-through text-gray-400" : ""
+                }`}
+              >
+                {todo.title}
+              </span>
+              {todo.dueDate && (
+                <span className="text-xs sm:text-sm text-gray-500">
+                  Due: {new Date(todo.dueDate).toLocaleDateString()}
+                </span>
+              )}
+              <span className="text-xs sm:text-sm text-gray-500">
+                ⏱ {todo.estimatedTime}h
+              </span>
+              <span className="text-xs sm:text-sm text-gray-500">
+                📂 {todo.category}
+              </span>
+              <span className="text-xs sm:text-sm font-semibold text-yellow-600">
+                {todo.priority}
+              </span>
             </div>
 
-            {/* Todo Actions */}
-            <div className="flex gap-2">
-              <button onClick={() => setEditingId(todo._id)} className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">Edit</button>
-              <button onClick={() => handleDelete(todo._id)} className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">Delete</button>
+            {/* Actions */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setEditingId(todo._id)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(todo._id)}
+                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-sm"
+              >
+                Delete
+              </button>
             </div>
 
             {/* Subtasks */}
             {todo.subtasks?.length > 0 && (
               <ul className="pl-6 mt-2 space-y-1">
-                {todo.subtasks.map(sub => (
-                  <li key={sub._id} className="flex justify-between items-center text-sm">
+                {todo.subtasks.map((sub) => (
+                  <li
+                    key={sub._id}
+                    className="flex justify-between items-center text-sm"
+                  >
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={sub.completed} onChange={() => toggleSubtask(todo._id, sub)} />
-                      <span className={sub.completed ? "line-through text-gray-400" : ""}>{sub.title} ({sub.estimatedTime}h)</span>
+                      <input
+                        type="checkbox"
+                        checked={sub.completed}
+                        onChange={() => toggleSubtask(todo._id, sub)}
+                      />
+                      <span
+                        className={
+                          sub.completed
+                            ? "line-through text-gray-400"
+                            : ""
+                        }
+                      >
+                        {sub.title} ({sub.estimatedTime}h)
+                      </span>
                     </div>
-                    <button onClick={() => deleteSubtask(todo._id, sub._id)} className="text-red-500 hover:text-red-700 text-sm">✖</button>
+                    <button
+                      onClick={() => deleteSubtask(todo._id, sub._id)}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      ✖
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -241,12 +402,17 @@ export default function TodoList({ darkMode }) {
                 type="text"
                 placeholder="Add subtask..."
                 value={subtaskInputs[todo._id] || ""}
-                onChange={(e) => setSubtaskInputs(prev => ({ ...prev, [todo._id]: e.target.value }))}
+                onChange={(e) =>
+                  setSubtaskInputs((prev) => ({
+                    ...prev,
+                    [todo._id]: e.target.value,
+                  }))
+                }
                 className="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
               />
               <button
                 onClick={() => addSubtask(todo._id)}
-                className="bg-indigo-500 text-white px-2 py-1 rounded hover:bg-indigo-600 text-sm"
+                className="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 text-sm"
               >
                 Add
               </button>
