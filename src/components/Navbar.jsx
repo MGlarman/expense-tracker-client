@@ -69,48 +69,79 @@ export default function Navbar({ darkMode, setDarkMode, setToken, setAdminToken 
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 font-medium">
+            {/* Main navigation */}
             {token && (
               <>
                 <Link
                   to="/dashboard"
-                  className="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors truncate"
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all shadow-sm
+                    ${
+                      darkMode
+                        ? "bg-indigo-700 hover:bg-indigo-600 text-white"
+                        : "bg-indigo-500 hover:bg-indigo-600 text-white"
+                    }`}
                 >
                   Dashboard
                 </Link>
+
                 <Link
                   to="/todo"
-                  className="hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors truncate"
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all shadow-sm
+                    ${
+                      darkMode
+                        ? "bg-blue-700 hover:bg-blue-600 text-white"
+                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                    }`}
                 >
                   To-Do List
                 </Link>
               </>
             )}
 
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="px-3 py-1 border rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-800 border-indigo-300 dark:border-indigo-600 transition-all text-sm shadow-sm truncate"
-            >
-              {darkMode ? "☀️ Light" : "🌙 Dark"}
-            </button>
-
+            {/* Divider */}
             {token && (
-              <button
-                onClick={handleUserLogout}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-sm shadow transition-all hover:scale-105 truncate"
-              >
-                Logout
-              </button>
+              <div className="hidden sm:block w-px h-6 bg-indigo-300 dark:bg-indigo-600 mx-2 opacity-60"></div>
             )}
 
-            {adminToken && (
+            {/* Utility buttons - smaller and neutral */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleAdminLogout}
-                className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded-lg text-sm shadow transition-all hover:scale-105 truncate"
+                onClick={() => setDarkMode(!darkMode)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all border ${
+                  darkMode
+                    ? "border-indigo-700 text-indigo-200 hover:bg-indigo-800"
+                    : "border-indigo-300 text-indigo-700 hover:bg-indigo-100"
+                }`}
               >
-                Admin Logout
+                {darkMode ? "☀️ Light" : "🌙 Dark"}
               </button>
-            )}
+
+              {token && (
+                <button
+                  onClick={handleUserLogout}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all border ${
+                    darkMode
+                      ? "border-red-700 text-red-300 hover:bg-red-800"
+                      : "border-red-300 text-red-700 hover:bg-red-100"
+                  }`}
+                >
+                  Logout
+                </button>
+              )}
+
+              {adminToken && (
+                <button
+                  onClick={handleAdminLogout}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all border ${
+                    darkMode
+                      ? "border-blue-700 text-blue-300 hover:bg-blue-800"
+                      : "border-blue-300 text-blue-700 hover:bg-blue-100"
+                  }`}
+                >
+                  Admin Logout
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
